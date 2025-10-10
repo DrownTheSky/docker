@@ -1,0 +1,15 @@
+[settings]
+os=Linux
+os_build=Linux
+arch=armv7
+arch_build=x86_64
+compiler=gcc
+compiler.version=9.4
+compiler.libcxx=libstdc++11
+build_type=Release
+[options]
+# 使用动态库方式引入第三方库
+*:shared=True
+[build_requires]
+toolchain_imx/latest
+[env]
