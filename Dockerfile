@@ -50,6 +50,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     lintian \
     make \
     net-tools \
+    openjdk-17-jdk \
     openssl \
     patchelf \
     pbzip2 \
@@ -101,7 +102,7 @@ RUN pip3 install --no-cache-dir \
     onnxmltools \
     onnxruntime-gpu \
     onnxscript \
-    onnxslim>=0.1.59 \
+    onnxslim \
     opencv-python \
     pycuda \
     pytest \
@@ -146,8 +147,9 @@ ENV TRT_VERSION 10.13.3.9
 RUN aria2c -c -x 16 -s 16 --retry-wait=5 --max-tries=0 \
     https://developer.nvidia.com/downloads/compute/machine-learning/tensorrt/10.13.3/tars/TensorRT-10.13.3.9.Linux.x86_64-gnu.cuda-12.9.tar.gz \
     && tar -xf TensorRT-10.13.3.9.Linux.x86_64-gnu.cuda-12.9.tar.gz \
-    && cp -a TensorRT-10.13.3.9/lib/*.so* /usr/lib64 \
     && cp -a TensorRT-10.13.3.9/bin/* /usr/bin/ \
+    && cp -a TensorRT-10.13.3.9/lib/*.so* /usr/lib/x86_64-linux-gnu \
+    && cp -a TensorRT-10.13.3.9/include/* /usr/include/x86_64-linux-gnu \
     && pip3 install TensorRT-10.13.3.9/python/tensorrt-10.13.3.9-cp310-none-linux_x86_64.whl \
     && rm -rf TensorRT-10.13.3.9 TensorRT-10.13.3.9.Linux.x86_64-gnu.cuda-12.9.tar.gz
 
@@ -168,3 +170,4 @@ RUN groupadd -g ${GID} ${UNAME} && \
     echo "${UNAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 USER ${UNAME}
 ENV CONAN_USER_HOME /home/${UNAME}
+ENV LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}"
