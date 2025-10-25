@@ -17,7 +17,9 @@ if ! docker ps -a --format '{{.Names}}' | grep -qw $DOCKER_CONTAINER; then
     docker run --rm -it --gpus all --privileged --name $DOCKER_CONTAINER --network host \
         -v $WORKSPACE:/home/$USER/source \
         -v $PROJECT_DIR/.conan:/home/$USER/.conan \
+        -v $PROJECT_DIR/.conan:/root/.conan \
         -v $WORKSPACE/data:/home/$USER/.conan/data \
+        -v $WORKSPACE/data:/root/.conan/data \
         -v $HOME/.ssh:/home/$USER/.ssh \
         -v /dev/bus/usb:/dev/bus/usb \
         -v /etc/localtime:/etc/localtime:ro \
