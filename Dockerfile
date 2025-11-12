@@ -1,6 +1,6 @@
 # Nvidia docker
 ARG CUDA_VERSION=12.8.0
-FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu22.04
+FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu24.04
 SHELL ["/bin/bash", "-c"]
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -12,7 +12,7 @@ RUN echo 'Asia/Shanghai' > /etc/timezone
 RUN sed -i 's#http://archive.ubuntu.com/#https://mirrors.aliyun.com/#' /etc/apt/sources.list
 
 # Update CUDA signing key
-RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/3bf863cc.pub
 
 # Install UTF-8
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -85,6 +85,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-wheel \
     && ln -s /usr/bin/python3 /usr/bin/python
 
+# Create python3 virtualenv
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
 # Modify pip config
 RUN pip3 install -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip \
     && pip3 config set global.index-url https://mirrors.aliyun.com/pypi/simple/
@@ -93,7 +97,7 @@ RUN pip3 install -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip \
 RUN pip3 install --no-cache-dir \
     --extra-index-url https://download.pytorch.org/whl/cu128 \
     --extra-index-url https://pypi.nvidia.com \
-    conan==1.59.0 \
+    conan==2.22.1 \
     facenet_pytorch \
     huggingface-hub \
     nvidia-modelopt[all] \
@@ -150,7 +154,7 @@ RUN aria2c -c -x 16 -s 16 --retry-wait=5 --max-tries=0 \
     && cp -a TensorRT-10.13.3.9/bin/* /usr/bin/ \
     && cp -a TensorRT-10.13.3.9/lib/*.so* /usr/lib/x86_64-linux-gnu \
     && cp -a TensorRT-10.13.3.9/include/* /usr/include/x86_64-linux-gnu \
-    && pip3 install TensorRT-10.13.3.9/python/tensorrt-10.13.3.9-cp310-none-linux_x86_64.whl \
+    && pip3 install TensorRT-10.13.3.9/python/tensorrt-10.13.3.9-cp312-none-linux_x86_64.whl \
     && rm -rf TensorRT-10.13.3.9 TensorRT-10.13.3.9.Linux.x86_64-gnu.cuda-12.9.tar.gz
 
 RUN apt-get -y autoremove --purge && \
@@ -162,12 +166,11 @@ RUN apt-get -y autoremove --purge && \
     find /usr/share/doc -type f -delete && \
     find /usr/share/man -type f -delete
 
-ARG UID=1000
-ARG GID=1000
 ARG UNAME=sky
-RUN groupadd -g ${GID} ${UNAME} && \
-    useradd -u ${UID} -g ${GID} -md /home/${UNAME} -s /bin/bash ${UNAME} && \
+RUN usermod -l ${UNAME} -d /home/${UNAME} -m ubuntu && \
+    groupmod -n ${UNAME} ubuntu && \
     echo "${UNAME} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
 USER ${UNAME}
 ENV CONAN_USER_HOME /home/${UNAME}
 ENV LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:/usr/local/lib:${LD_LIBRARY_PATH}"

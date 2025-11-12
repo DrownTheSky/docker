@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 DOCKER_IMAGE="sky-docker"
 DOCKER_CONTAINER="sky-docker"
@@ -9,17 +10,15 @@ if [[ -n "$1" && -d "$1" ]]; then
 fi
 
 if ! docker ps -a --format '{{.Names}}' | grep -qw $DOCKER_CONTAINER; then
-    mkdir -p $WORKSPACE/data
+    mkdir -p $WORKSPACE/p
     docker build -t $DOCKER_IMAGE $PROJECT_DIR \
-        --build-arg UID=$(id -u) \
-        --build-arg GID=$(id -g) \
         --build-arg UNAME=$USER
     docker run --rm -it --gpus all --privileged --name $DOCKER_CONTAINER --network host \
         -v $WORKSPACE:/home/$USER/source \
-        -v $PROJECT_DIR/.conan:/home/$USER/.conan \
-        -v $PROJECT_DIR/.conan:/root/.conan \
-        -v $WORKSPACE/data:/home/$USER/.conan/data \
-        -v $WORKSPACE/data:/root/.conan/data \
+        -v $PROJECT_DIR/.conan2:/home/$USER/.conan2 \
+        -v $PROJECT_DIR/.conan2:/root/.conan2 \
+        -v $WORKSPACE/p:/home/$USER/.conan2/p \
+        -v $WORKSPACE/p:/root/.conan2/p \
         -v $HOME/.ssh:/home/$USER/.ssh \
         -v /dev/bus/usb:/dev/bus/usb \
         -v /etc/localtime:/etc/localtime:ro \
