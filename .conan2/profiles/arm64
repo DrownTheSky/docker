@@ -2,13 +2,12 @@
 arch=armv8
 build_type=Release
 compiler=gcc
-compiler.cppstd=gnu17
 compiler.libcxx=libstdc++
 compiler.version=10
 os=Linux
 [options]
 [buildenv]
-ARCH=armv8
+ARCH=arm64
 CROSS_COMPILE=aarch64-none-linux-gnu-
 SYSROOT=/opt/aarch64-none-linux-gnu
 TARGET_PREFIX=aarch64-none-linux-gnu-
