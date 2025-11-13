@@ -9,7 +9,10 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 RUN echo 'Asia/Shanghai' > /etc/timezone
 
 # Aliyun ubuntu image source
-RUN sed -i 's#http://archive.ubuntu.com/#https://mirrors.aliyun.com/#' /etc/apt/sources.list
+RUN sed -i -e 's#http://archive.ubuntu.com/#https://mirrors.aliyun.com/#g' \
+    -e 's#http://cn.archive.ubuntu.com/#https://mirrors.aliyun.com/#g' \
+    -e 's#http://security.ubuntu.com/#https://mirrors.aliyun.com/#g' \
+    /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu.sources
 
 # Update CUDA signing key
 RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/3bf863cc.pub
@@ -41,6 +44,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     git-core \
     git-lfs \
+    iproute2 \
     iputils-ping \
     kmod \
     libcurl4-openssl-dev \
@@ -60,11 +64,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     pv \
     rsync \
     semodule-utils \
+    socat \
     ssh \
     ssh-client \
     sshpass \
     sudo \
     tar \
+    tcpdump \
     tree \
     udev \
     unzip \
@@ -140,10 +146,10 @@ RUN aria2c -c -x 16 -s 16 --retry-wait=5 --max-tries=0 \
 
 ENV PATH="/opt/aarch64-none-linux-gnu/bin:${PATH}"
 RUN aria2c -c -x 16 -s 16 --retry-wait=5 --max-tries=0 \
-    https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu.tar.xz \
-    && tar -xf gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu.tar.xz -C /opt \
-    && mv /opt/gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu /opt/aarch64-none-linux-gnu \
-    && rm gcc-arm-10.3-2021.07-x86_64-aarch64-none-linux-gnu.tar.xz
+    https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-a/10.2-2020.11/binrel/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu.tar.xz \
+    && tar -xf gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu.tar.xz -C /opt \
+    && mv /opt/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu /opt/aarch64-none-linux-gnu \
+    && rm gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu.tar.xz
 
 # Install TensorRT
 ENV TRT_LIBPATH /usr/lib/x86_64-linux-gnu
